@@ -123,12 +123,13 @@ class Attachment(object):
 class Outbox(object):
     '''Thin wrapper around the SMTP and SMTP_SSL classes from the smtplib module.'''
 
-    def __init__(self, username, password, server, port, mode='TLS', debug=False):
-        if mode not in ('SSL', 'TLS', None):
-            raise ValueError("Mode must be one of TLS, SSL, or None")
-
-        self.username = username
-        self.password = password
+    def __init__(self, server, port=25, username=False, password=False, mode=False, debug=False):
+        if mode not in ('SSL', 'TLS', False):
+            raise ValueError("Mode must be one of TLS, SSL, or False")
+        if username:
+            self.username = username
+        if password:
+            self.password = password
         self.connection_details = (server, port, mode, debug)
         self._conn = None
 
@@ -156,8 +157,8 @@ class Outbox(object):
 
         if mode == 'TLS':
             smtp.starttls()
-
-        self.authenticate(smtp)
+        if mode:
+            self.authenticate(smtp)
 
         return smtp
 
